@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app.capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <title>Weather App</title>
+
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" integrity="sha384-tViUnnbYAV00FLIhhi3v/dWt3Jxw4gZQcNoSCxCIFNJVCx7/D55/wXsrNIRANwdD" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/lib/bootstrap.min.css">
+</head>
+<body class="bg-secondary">
+    <div class="d-flex justify-content-center align-items-center vh-100">
+        <div class="card col-11 col-md-5" id="divInput" style="font-size: x-large">
+            <div class="card-body">
+                <h2 class="text-center mb-4">Weather</h2>
+                <p class="text-center mb-4">Please enter the Latitude and Longitude of the location you want to search!</p>
+                <form>
+                    <label class="form-label" for="txtLatitude">Latitude</label>
+                    <input class="form-control" id="txtLatitude" type="text">
+                    <label class="form-label" for="txtLongitude">Longitude</label>
+                    <input class="form-control" id="txtLongitude" type="text">
+                    <button id="btnSubmit" class="btn btn-primary col-12 mt-2" type="button">Submit</button>
+                </form>
+            </div>
+        </div>
+        <div class="card col-11 col-md-7 d-none" id="divDisplay" style="font-size: x-large">
+            <div class="card-body">
+                <h2 class="text-center mb-4">Weather Forecast</h2>
+                <div id="divWeatherInfo" class="d-flex justify-content-center align-items-center">
+                    <div id="divTemperature" class="card col-4 justify-content-center align-items-center border-0">
+                        <div class="d-flex">
+                            <p>Temperature</p>
+                        </div>
+                        <i class="bi bi-thermometer-half text-danger fs-1"></i>
+                    </div>
+                    <div id="divHumidity" class="card col-4 justify-content-center align-items-center border-0">
+                        <p>Humidity</p>
+                        <i class="bi bi-droplet-half text-primary fs-1"></i>
+                    </div>
+                    <div id="divWeatherCode" class="card col-4 justify-content-center align-items-center border-0">
+                    <div class="card align-items-center">
+                        <p>Weather Condition</p>
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    <script>
+        strBaseURL = "https://api.open-meteo.com/v1/forecast"
+        document.querySelector('#btnSubmit').addEventListener('click', () =>{
+            document.querySelector('#divInput').classList.add('d-none')
+            document.querySelector('#divDisplay').classList.remove('d-none')
+            let strLatitude = document.querySelector('#txtLatitude').value.trim()
+            let strLongitude = document.querySelector('#txtLongitude').value.trim()
+
+            fetch(`${strBaseURL}?latitude=${strLatitude}&longitude=${strLongitude}&current=temperature_2m,relative_humidity_2m,weather_code&temperature_unit=fahrenheit`)
+            .then(response => {
+                if(!response.ok){
+                    throw new Error('Bad HTTP Response')
+                }
+                return response.json()
+            })
+            .then(data =>{
+                let strTemperature = data.current.temperature_2m
+                let strHumidity = data.current.relative_humidity_2m
+                let strWeatherCode = data.current.weather_code
+                console.log(strTemperature)
+                console.log(strHumidity)
+                console.log(strWeatherCode)
+                document.querySelector('#divTemperature').innerHTML += `<p>${strTemperature}</p>`
+                document.querySelector('#divHumidity').innerHTML += `<p>${strHumidity}%</p>`
+                if(strWeatherCode == 0){
+                    console.log("Clear Sky")
+                    document.querySelector('#divWeatherCode').innerHTML += `<i class="bi bi-sun fs-1"></i><p>Clear Sky</p>`
+                }
+                else if(strWeatherCode == 1 || strWeatherCode == 2 || strWeatherCode == 3) {
+                    console.log("Partly Cloudy")
+                    document.querySelector('#divWeatherCode').innerHTML += `<i class="bi bi-cloud-sun fs-1"></i><p>Partly Cloudy</p>`
+                }
+                else if(strWeatherCode == 45 || strWeatherCode == 48) {
+                    console.log("Fog")
+                    document.querySelector('#divWeatherCode').innerHTML += `<i class="bi bi-cloud-fog fs-1"></i><p>Fog</p>`
+                }
+                else if(strWeatherCode == 51 || strWeatherCode == 53 || strWeatherCode == 55) {
+                    console.log("Drizzle")
+                    document.querySelector('#divWeatherCode').innerHTML += `<i class="bi bi-cloud-drizzle fs-1"></i><p>Drizzle</p>`
+                }
+                else if(strWeatherCode == 56 || strWeatherCode == 57) {
+                    console.log("Freezing Drizzle")
+                    document.querySelector('#divWeatherCode').innerHTML += `<i class="bi bi-snow"></i><i class="bi bi-cloud-drizzle"></i><p>Freezing Drizzle</p>`
+                }
+                else if(strWeatherCode == 61 || strWeatherCode == 63 || strWeatherCode == 65 || strWeatherCode == 80 || strWeatherCode == 81 || strWeatherCode == 82) {
+                    console.log("Rain")
+                    document.querySelector('#divWeatherCode').innerHTML += `<i class="bi bi-cloud-rain fs-1"></i><p>Rain</p>`
+                }
+                else if(strWeatherCode == 66 || strWeatherCode == 67) {
+                    console.log("Freezing Rain")
+                    document.querySelector('#divWeatherCode').innerHTML += `<i class="bi bi-snow"></i><i class="bi bi-cloud-rain"></i><p>Freezing Rain</p>`
+                }
+                else if(strWeatherCode == 71 || strWeatherCode == 73 || strWeatherCode == 75 || strWeatherCode == 77 || strWeatherCode == 85 || strWeatherCode == 86) {
+                    console.log("Snow")
+                    document.querySelector('#divWeatherCode').innerHTML += `<i class="bi bi-cloud-snow fs-1"></i><p>Snow</p>`
+                }
+                else{
+                    console.log("Thunderstorm with slight or heavy hail")
+                    document.querySelector('#divWeatherCode').innerHTML += `<i class="bi bi-cloud-lightning-rain"></i><i class="bi bi-cloud-hail"></i><p>Thunderstorm with hail</p>`
+                }
+
+            })
+        })
+    </script>
+    <footer>
+        <a href="https://open-meteo.com/">
+	        Weather data by Open-Meteo.com
+        </a>
+    </footer>
+</body>
+</html>
