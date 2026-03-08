@@ -7,13 +7,13 @@
     <meta name="apple-mobile-web-app.capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <title>Weather App</title>
-    <link rel="icon" type="image/x-icon" href="Weather App.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="Weather App.png">
-    <link rel="icon" sizes="192x192" href="Weather App.png">
+    <link rel="icon" type="image/x-icon" href="Images/Weather App.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="Images/Weather App.png">
+    <link rel="icon" sizes="192x192" href="Images/Weather App.png">
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" integrity="sha384-tViUnnbYAV00FLIhhi3v/dWt3Jxw4gZQcNoSCxCIFNJVCx7/D55/wXsrNIRANwdD" crossorigin="anonymous">
-    <link rel="stylesheet" href="bootstrap.min.css">
+    <link rel="stylesheet" href="css/lib/bootstrap.min.css">
 </head>
 <body class="bg-secondary">
     <div class="d-flex justify-content-center align-items-center vh-100">
@@ -38,11 +38,11 @@
                         <div class="d-flex">
                             <p>Temperature</p>
                         </div>
-                        <i class="bi bi-thermometer-half text-danger fs-1"></i>
+                        <i id = "imgTemperature"></i>
                     </div>
                     <div id="divHumidity" class="card col-4 justify-content-center align-items-center border-0">
                         <p>Humidity</p>
-                        <i class="bi bi-droplet-half text-primary fs-1"></i>
+                        <i id="imgHumidity"></i>
                     </div>
                     <div id="divWeatherCode" class="card col-4 justify-content-center align-items-center border-0">
                     <div class="card align-items-center">
@@ -56,29 +56,38 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
     <script>
+        //This is the baseURL for open Meteo
         strBaseURL = "https://api.open-meteo.com/v1/forecast"
+
         document.querySelector('#btnSubmit').addEventListener('click', () =>{
+            //This is changing which card is appearing on screen
             document.querySelector('#divInput').classList.add('d-none')
             document.querySelector('#divDisplay').classList.remove('d-none')
+            //This is saving the information that the user put in to variables
             let strLatitude = document.querySelector('#txtLatitude').value.trim()
             let strLongitude = document.querySelector('#txtLongitude').value.trim()
 
+            //ADD COMMENT HERE
             fetch(`${strBaseURL}?latitude=${strLatitude}&longitude=${strLongitude}&current=temperature_2m,relative_humidity_2m,weather_code&temperature_unit=fahrenheit`)
             .then(response => {
+                //This checking to make sure that we got a good response from the website
                 if(!response.ok){
                     throw new Error('Bad HTTP Response')
                 }
                 return response.json()
             })
             .then(data =>{
+                //ADD COMMENT HERE
                 let strTemperature = data.current.temperature_2m
                 let strHumidity = data.current.relative_humidity_2m
                 let strWeatherCode = data.current.weather_code
-                console.log(strTemperature)
-                console.log(strHumidity)
-                console.log(strWeatherCode)
+
+                //This is displaying the current temperature and Humidity to the screen
                 document.querySelector('#divTemperature').innerHTML += `<p>${strTemperature}</p>`
                 document.querySelector('#divHumidity').innerHTML += `<p>${strHumidity}%</p>`
+                document.querySelector('#imgTemperature').className = "bi bi-thermometer-half text-danger fs-1"
+                document.querySelector('#imgHumidity').className = "bi bi-droplet-half text-primary fs-1"
+                //Depending on what the Weather Code was different images and text are display to the screen
                 if(strWeatherCode == 0){
                     console.log("Clear Sky")
                     document.querySelector('#divWeatherCode').innerHTML += `<i class="bi bi-sun fs-1"></i><p>Clear Sky</p>`
@@ -125,6 +134,4 @@
         </a>
     </footer>
 </body>
-
 </html>
-
